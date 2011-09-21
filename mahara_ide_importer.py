@@ -2,6 +2,16 @@
 This program is a tool for synchronising SMS IDE export format accounts
 with Mahara via the Web Services interface.
 
+SYNOPSIS:
+
+execute import:
+
+  python mahara_ide_importer.py --help
+
+  python mahara_ide_importer.py --file=ide.csv --maharaurl=http://mahara.hogwarts.school.nz --consumerkey=<consumer key> --consumersecret=<consumer secret> --domain=hogwarts.school.nz -c -u -d -g
+
+
+
 It provides options for create/update/delete of user accounts, and 
 automatic updating of groups based on the mlepRole and mlepGroupMembership
 fields in the CSV format.
@@ -16,7 +26,6 @@ user directory initiative is at: https://gitorious.org/pla-udi/pages/Home
 
 Details on Mahara Web Services can be found at:
 https://gitorious.org/mahara-contrib/artefact-webservice
-
 
 Copyright (C) Piers Harding 2011 and beyond, All rights reserved
 
@@ -184,11 +193,11 @@ def main():
     parser.add_option("-k", "--consumerkey", dest="consumer_key", default='', type="string",
                           help="The OAuth Consumer Key for Mahara", metavar="CONSUMER_KEY")
     parser.add_option("-n", "--domain", dest="school_domain", default='', type="string",
-                          help="The registered domain name of the school", metavar="SCHOOL_DOMAIN")
+                          help="The registered domain name of the school, typically used for email addresses, and/or Google Apps - hogwarts.school.nz", metavar="SCHOOL_DOMAIN")
     parser.add_option("-s", "--consumersecret", dest="consumer_secret", default='', type="string",
                           help="The OAuth Consumer Secret for Mahara", metavar="CONSUMER_SECRET")
     parser.add_option("-m", "--maharaurl", dest="mahara_url", default='http://mahara.local.net/maharadev', type="string",
-                          help="The base URL for Mahara", metavar="MAHARA_URL")
+                          help="The base URL for Mahara - http://mahara.hogwarts.school.nz", metavar="MAHARA_URL")
     parser.add_option("-g", "--groups", dest="groups", action="store_true", default=False,
                           help="Process groups", metavar="GROUPS")
     (options, args) = parser.parse_args()
