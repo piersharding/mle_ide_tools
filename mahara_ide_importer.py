@@ -46,7 +46,7 @@ import os, sys, re, time, random
 import oauth2 as oauth
 import urllib, cgi
 import json
-import csv
+import ide
 from optparse import OptionParser, SUPPRESS_HELP
 import logging
 
@@ -130,40 +130,7 @@ class MaharaProxy:
 
 
 def get_csv_file(ide_file):
-    csv_file = []
-
-    # preprocess the file to remove blank lines and comments
-    f = open(ide_file, 'rb')
-    lines = []
-    for line in f.readlines():
-        # eliminate blank lines
-        if re.match('^$', line):
-            continue
-        # eliminate comment lines
-        if re.match('^#', line):
-            continue
-        # eliminate the timestamp line
-        if re.match('^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d$', line):
-            logging.info("found timestamp: " + str(line))
-            continue
-        lines.append(line.strip())
-
-    # setup the csv processor
-    ideReader = csv.reader(lines, delimiter=',', quotechar='"')
-
-    # get header row
-    fields = ideReader.next() 
-
-    # process each csv record into a hash
-    for row in ideReader:
-        items = zip(fields, row)
-        item = {}
-        for (name, value) in items:
-            item[name] = value.strip()
-        csv_file.append(item)
-        #print(item)
-
-    return csv_file
+    return ide.csvfile.read(ide_file)
 
 
 def filter_by_remote_user(existing_users):
@@ -194,6 +161,8 @@ def main():
                           help="The OAuth Consumer Key for Mahara", metavar="CONSUMER_KEY")
     parser.add_option("-n", "--domain", dest="school_domain", default='', type="string",
                           help="The registered domain name of the school, typically used for email addresses, and/or Google Apps - hogwarts.school.nz", metavar="SCHOOL_DOMAIN")
+    parser.add_option("-p", "--password", dest="password", default=False, type="string",
+                          help="A default password for all new accounts", metavar="PASSWORD")
     parser.add_option("-s", "--consumersecret", dest="consumer_secret", default='', type="string",
                           help="The OAuth Consumer Secret for Mahara", metavar="CONSUMER_SECRET")
     parser.add_option("-m", "--maharaurl", dest="mahara_url", default='http://mahara.local.net/maharadev', type="string",
@@ -258,9 +227,15 @@ def main():
             logging.error("cannot create user - username already exists: " + username)
             sys.exit(1)
         all_users[user['mlepSmsPersonId'].lower()] = username # save new usernames
+        if 'password' in user:
+            new_password = user['password']
+        elif options.password:
+            new_password = options.password
+        else:
+            new_password = 'pass' + str(random.random()) + str(int(time.time()))
         new_users.append(
                         { 'username': username,
-                          'password': 'pass' + str(random.random()) + str(int(time.time())),
+                          'password': new_password,
                           'firstname': user['mlepFirstName'],
                           'lastname': user['mlepLastName'],
                           'email': user['mlepEmail'],
