@@ -9,7 +9,7 @@ execute import:
 
   python mahara_ide_to_csv.py --help
 
-  python mahara_ide_to_csv.py --file=ide.csv -u -g
+  python mahara_ide_to_csv.py --file=ide.csv -u -g -a admin
 
 
 
@@ -138,6 +138,8 @@ def main():
                           help="The registered domain name of the school, typically used for email addresses, and/or Google Apps - hogwarts.school.nz", metavar="SCHOOL_DOMAIN")
     parser.add_option("-p", "--password", dest="password", default=False, type="string",
                           help="A default password for all new accounts", metavar="PASSWORD")
+    parser.add_option("-x", "--emptypassword", dest="emptypassword", action="store_true", default=False,
+                          help="Specify empty password - for user updates", metavar="NOPASSWORD")
     parser.add_option("-z", "--genpassword", dest="genpassword", action="store_true", default=False,
                           help="Generate new passwords", metavar="GENPASSWORD")
     parser.add_option("-g", "--groups", dest="groups", action="store_true", default=False,
@@ -170,7 +172,7 @@ def main():
     csv_attrs = dict(zip(sms_users[0].keys(), sms_users[0].keys()))
 
     # add on password field
-    if (options.genpassword or options.password) and not 'password' in csv_attrs:
+    if (options.genpassword or options.password or options.emptypassword) and not 'password' in csv_attrs:
         csv_attrs['password'] = 1
 
     # determine the basic user fields for adding on
@@ -199,6 +201,8 @@ def main():
         # password is given, defaulted or generated
         if options.genpassword:
             user['password'] = 'pass' + str(random.random()) + str(int(time.time()))
+        if options.emptypassword:
+            user['password'] = ''
         elif options.password:
             user['password'] = options.password
         # map only the fields given for the target CSV format
