@@ -1,34 +1,37 @@
 """
 This program is a tool for transforming the IDE CSV file
-format into the multiple CSV upload formats that Mahara
+format into the multiple CSV upload formats that Moodle
 uses for user and group management.
 
 SYNOPSIS:
 
 execute import:
 
-  python mahara_ide_to_csv.py --help
+  python moodle_ide_to_csv.py --help
 
-  python mahara_ide_to_csv.py --file=ide.csv -u -g -a admin
+  python moodle_ide_to_csv.py --file=ide.csv -u -c -e -a admin
+
+The moodle-course.csv file is compatible with a 3rd party tool
+for course upload:
+  http://docs.moodle.org/20/en/Bulk_course_upload
+Your mileage may vary.
+
 
 It provides options for user account records, and automatic
-updating of groups based on the mlepRole and mlepGroupMembership
+updating of enrolments based on the mlepRole and mlepGroupMembership
 fields in the IDE CSV format.
 
 The IDE (Identity Data Extract) is a CSV file format that SMS vendors in 
 New Zealand generate to describe users for synchronisation to the school
 user directory.  This program extends the usefulness of this export format
-for the purpose of automatic provisioning of Mahara ePortfolio accounts.
+for the purpose of automatic provisioning of Moodle accounts, and courses.
 
 Further information can be found at http://www.iam.school.nz/ and the original 
 user directory initiative is at: https://gitorious.org/pla-udi/pages/Home
 
-Details on Mahara Web Services can be found at:
-https://gitorious.org/mahara-contrib/artefact-webservice
-
 Copyright (C) Piers Harding 2011 and beyond, All rights reserved
 
-mahara_ide_to_csv.py is free software; you can redistribute it and/or
+moodle_ide_to_csv.py is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
 License as published by the Free Software Foundation; either
 version 2 of the License, or (at your option) any later version.
@@ -55,69 +58,70 @@ def output_csv_file(filename, data):
         writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         writer.writerows(data)
 
-USERS_FILE = 'mahara-users.csv'
-GROUPS_FILE = 'mahara-groups.csv'
-GROUPS_MEMBERS_FILE = 'mahara-groups-members.csv'
+USERS_FILE = 'moodle-users.csv'
+COURSES_FILE = 'moodle-courses.csv'
 
 USER_FIELDS = [
     'username',
-    'remoteuser',
     'password',
-    'email',
     'firstname',
     'lastname',
-    'preferredname',
-    'studentid',
-    'introduction',
-    'officialwebsite',
-    'personalwebsite',
-    'blogaddress',
-    'address',
-    'town',
+    'email',
+    'institution',
+    'department',
     'city',
     'country',
-    'homenumber',
-    'businessnumber',
-    'mobilenumber',
-    'faxnumber',
-    'icqnumber',
-    'msnnumber',
-    'aimscreenname',
-    'yahoochat',
-    'skypeusername',
-    'jabberusername',
-    'occupation',
-    'industry']
+    'lang',
+    'auth',
+    'ajax',
+    'timezone',
+    'idnumber',
+    'icq',
+    'phone1',
+    'phone2',
+    'address',
+    'url',
+    'description',
+    'mailformat',
+    'maildisplay',
+    'htmleditor',
+    'autosubscribe',
+    'oldusername',
+    'deleted']
 
 CSV_FIELDS = [
     'mlepUsername',
-    'mlepSmsPersonId',
     'password',
-    'mlepEmail',
     'mlepFirstName',
     'mlepLastName',
-    'preferredname',
-    'mlepSmsPersonId',
-    'introduction',
-    'officialwebsite',
-    'personalwebsite',
-    'blogaddress',
-    'address',
-    'town',
+    'mlepEmail',
+    'institution',
+    'department',
     'city',
     'country',
-    'homenumber',
-    'businessnumber',
-    'mobilenumber',
-    'faxnumber',
-    'icqnumber',
-    'msnnumber',
-    'aimscreenname',
-    'yahoochat',
-    'skypeusername',
-    'jabberusername',
-    'occupation',
-    'industry']
+    'lang',
+    'auth',
+    'ajax',
+    'timezone',
+    'mlepSmsPersonId',
+    'icq',
+    'phone1',
+    'phone2',
+    'address',
+    'url',
+    'description',
+    'mailformat',
+    'maildisplay',
+    'htmleditor',
+    'autosubscribe',
+    'oldusername',
+    'deleted']
+
+# enrolment fields
+# course1, type1, role1, group1, enrolperiod1, course2, type2, role2, group2, enrolperiod2
+
+# course fields
+# fullname,shortname,category,sortorder,idnumber,summary,format,showgrades,newsitems,teacher,teachers,student,students,startdate,numsections,maxbytes,visible,groupmode,timecreated,timemodified,password,enrolperiod,groupmodeforce,metacourse,lang,theme,cost,showreports,guest,enrollable,enrolstartdate,enrolenddate,notifystudents,expirynotify,expirythreshold,teacher1_role,teacher1_account
 
 FIELD_MAP = dict(zip(USER_FIELDS, CSV_FIELDS))
 
@@ -138,10 +142,14 @@ def main():
                           help="A default password for all new accounts", metavar="PASSWORD")
     parser.add_option("-x", "--emptypassword", dest="emptypassword", action="store_true", default=False,
                           help="Specify empty password - for user updates", metavar="NOPASSWORD")
+    parser.add_option("-d", "--delete", dest="delete", action="store_true", default=False,
+                          help="Add delete for users", metavar="GENPASSWORD")
     parser.add_option("-z", "--genpassword", dest="genpassword", action="store_true", default=False,
                           help="Generate new passwords", metavar="GENPASSWORD")
-    parser.add_option("-g", "--groups", dest="groups", action="store_true", default=False,
-                          help="Process groups", metavar="GROUPS")
+    parser.add_option("-e", "--enrol", dest="enrol", action="store_true", default=False,
+                          help="Process enrolments", metavar="ENROLE")
+    parser.add_option("-c", "--courses", dest="courses", action="store_true", default=False,
+                          help="Process courses", metavar="COURSES")
     parser.add_option("-a", "--admin", dest="admin", default=False, type="string",
                           help="The default admin user for all groups", metavar="ADMIN")
     (options, args) = parser.parse_args()
@@ -173,10 +181,15 @@ def main():
     if (options.genpassword or options.password or options.emptypassword) and not 'password' in csv_attrs:
         csv_attrs['password'] = 1
 
+    # add on password field
+    if options.delete and not 'deleted' in csv_attrs:
+        csv_attrs['deleted'] = 1
+
     # determine the basic user fields for adding on
     user_cols = [field for field in USER_FIELDS if FIELD_MAP[field] in csv_attrs]
 
     # loop through user records and accumulate users, and groups
+    course_max = 0
     groups = {}
     users = [user_cols]
     for user in sms_users:
@@ -189,13 +202,16 @@ def main():
         if 'mlepRole' in user and len(user['mlepRole']) > 0:
             user_groups.append(user['mlepRole'])
         if 'mlepRole' in user and re.match('Teach', user['mlepRole']):
-            role = 'tutor'
+            role = '2'
         else:
-            role = 'member'
+            role = '1'
         for group in user_groups:
             if not group in groups:
                 groups[group] = {}
             groups[group][user['mlepUsername']] = role
+        # delete users
+        if options.delete:
+            user['deleted'] = '1'
         # password is given, defaulted or generated
         if options.genpassword:
             user['password'] = 'pass' + str(random.random()) + str(int(time.time()))
@@ -204,7 +220,24 @@ def main():
         elif options.password:
             user['password'] = options.password
         # map only the fields given for the target CSV format
-        users.append([user[FIELD_MAP[field]] for field in user_cols])
+        row = [user[FIELD_MAP[field]] for field in user_cols]
+        if options.enrol:
+            if len(user_groups) > course_max:
+                course_max = len(user_groups)
+            for group in user_groups:
+                row.append(group)
+                row.append(role)
+        users.append(row)
+
+    # add enrolment headings and adjust empty columns
+    for i in range(1,course_max+1):
+        users[0].append('course'+str(i))
+        users[0].append('type'+str(i))
+    line_max = len(users[0])
+    for r in users:
+        while len(r) < line_max:
+            r.append('')
+
 
     logging.info("user records: " + str(len(users) - 1))
 
@@ -212,22 +245,19 @@ def main():
         logging.info("outputing user file")
         output_csv_file(USERS_FILE, users)
 
-    # now create the group file structures
-    csv_groups = [['shortname', 'displayname', 'description', 'roles', 'request']]
-    csv_group_members = [['shortname', 'username', 'role']]
+    # now create the course file structures
+# fullname,shortname,category,sortorder,idnumber,summary,format,showgrades,newsitems,teacher,teachers,student,students,startdate,numsections,maxbytes,visible,groupmode,timecreated,timemodified,password,enrolperiod,groupmodeforce,metacourse,lang,theme,cost,showreports,guest,enrollable,enrolstartdate,enrolenddate,notifystudents,expirynotify,expirythreshold,teacher1_role,teacher1_account
+    csv_courses = [['fullname', 'shortname', 'category', 'sortorder', 'idnumber', 'summary']]
+    i = 0
     for (group, members) in groups.iteritems():
-        csv_groups.append([group, group, group, 'course', 1])
-        csv_group_members.append([group, options.admin, 'admin'])
-        for (user, role) in members.iteritems():
-            csv_group_members.append([group, user, role])
+        i += 1
+        csv_courses.append([group, group, group, '', i, group, group])
     
-    logging.info("group records: " + str(len(csv_groups) - 1))
-    logging.info("group member records: " + str(len(csv_group_members) - 1))
+    logging.info("courses records: " + str(len(csv_courses) - 1))
 
-    if options.groups:
-        logging.info("outputing group files")
-        output_csv_file(GROUPS_FILE, csv_groups)
-        output_csv_file(GROUPS_MEMBERS_FILE, csv_group_members)
+    if options.courses:
+        logging.info("outputing courses files")
+        output_csv_file(COURSES_FILE, csv_courses)
 
     logging.info("finished")
     sys.exit(0)
