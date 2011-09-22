@@ -1,7 +1,8 @@
 """
 This program is a tool for transforming the IDE CSV file
 format into the multiple CSV upload formats that Moodle
-uses for user and group management.
+uses for user and group management as per:
+http://docs.moodle.org/20/en/admin/uploaduser
 
 SYNOPSIS:
 
@@ -11,15 +12,19 @@ execute import:
 
   python moodle_ide_to_csv.py --file=ide.csv -u -c -e -a admin
 
-The moodle-course.csv file is compatible with a 3rd party tool
-for course upload:
-  http://docs.moodle.org/20/en/Bulk_course_upload
-Your mileage may vary.
-
 
 It provides options for user account records, and automatic
 updating of enrolments based on the mlepRole and mlepGroupMembership
 fields in the IDE CSV format.
+
+Files output are:
+ - moodle-users.csv - users, compatible with the standard Moodle bulk user upload tool
+ - moodle-courses.csv - courses
+
+The moodle-course.csv file is compatible with a 3rd party tool
+for course upload:
+  http://docs.moodle.org/20/en/Bulk_course_upload
+Your mileage may vary.
 
 The IDE (Identity Data Extract) is a CSV file format that SMS vendors in 
 New Zealand generate to describe users for synchronisation to the school

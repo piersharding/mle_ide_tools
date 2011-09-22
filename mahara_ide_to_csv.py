@@ -15,6 +15,11 @@ It provides options for user account records, and automatic
 updating of groups based on the mlepRole and mlepGroupMembership
 fields in the IDE CSV format.
 
+Output files are:
+ - mahara-users.csva - users
+ - mahara-groups.csv - group skeleton
+ - mahara-groups-members.csv - members to add to groups
+
 The IDE (Identity Data Extract) is a CSV file format that SMS vendors in 
 New Zealand generate to describe users for synchronisation to the school
 user directory.  This program extends the usefulness of this export format
