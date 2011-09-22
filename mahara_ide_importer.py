@@ -183,6 +183,10 @@ def main():
         sys.exit(1)
     sms_users = get_csv_file(options.ide_file)
 
+    if not sms_users or len(sms_users) == 0:
+        logging.info('CSV file is empty')
+        sys.exit(0)
+
 
     # authenticate against Mahara
     mp = MaharaProxy(options)
@@ -340,7 +344,7 @@ def main():
         for user in group_members:
             account = sms_users[user]
             # teachers are 'tutor' students are members
-            if 'mlepRole' in account and re.match('Teacher', account['mlepRole']):
+            if 'mlepRole' in account and re.match('Teach', account['mlepRole']):
                 role = 'tutor'
             else:
                 role = 'member'
@@ -360,13 +364,13 @@ def main():
             if user in sms_users:
                 account = sms_users[user]
                 # only remove ordinary members - not teachers
-                if 'mlepRole' in account and not re.match('Teacher', account['mlepRole']):
+                if 'mlepRole' in account and not re.match('Teach', account['mlepRole']):
                     actions.append({'username': all_users[user], 'action': 'remove'})
         # do the add/update roles
         for user in groups[group['shortname']]:
             account = sms_users[user]
             # teachers are 'tutor' students are members
-            if 'mlepRole' in account and re.match('Teacher', account['mlepRole']):
+            if 'mlepRole' in account and re.match('Teach', account['mlepRole']):
                 role = 'tutor'
             else:
                 role = 'member'
