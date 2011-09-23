@@ -27,6 +27,22 @@ user directory initiative is at: https://gitorious.org/pla-udi/pages/Home
 Details on Mahara Web Services can be found at:
 https://gitorious.org/mahara-contrib/artefact-webservice
 
+You must have OAuth authentication setup on Mahara - https://wiki.mahara.org/index.php/Plugins/Artefact/WebServices#REST_with_OAuth_authentication
+
+A service group needs to be setup and allocated to the correct OAuth application, and institution - https://wiki.mahara.org/index.php/Plugins/Artefact/WebServices/WebServicesConfiguration#Service_Groups
+
+The functions required are:
+mahara_group_create_groups
+mahara_group_delete_groups
+mahara_group_get_groups
+mahara_group_update_group_members
+mahara_group_update_groups
+mahara_user_create_users
+mahara_user_delete_users
+mahara_user_get_users
+mahara_user_update_users
+mahara_user_get_context
+
 Copyright (C) Piers Harding 2011 and beyond, All rights reserved
 
 mahara_ide_importer.py is free software; you can redistribute it and/or
