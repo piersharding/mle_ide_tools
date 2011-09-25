@@ -5,7 +5,7 @@ format into import formats for Moodle, and Mahara
  - starting with:
  - Mahara via Web Services - https://gitorious.org/mahara-contrib/artefact-webservice
  - Mahara via CSV upload  - https://wiki.mahara.org/index.php/Institute_administrator_guide/1_User_administration/Bulk_uploading_students
- - Moodle via CSV upload - http://docs.moodle.org/20/en/admin/uploaduser
+ - Moodle via CSV upload - https://gitorious.org/moodle-tool_uploadcourse/moodle-tool_uploadcourse
 
 Each program is written in Python, and will require 2.5 or later, with 
 additional library dependencies for OAuth when communicating with
