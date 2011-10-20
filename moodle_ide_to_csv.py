@@ -252,11 +252,12 @@ def main():
 
     # now create the course file structures
 # fullname,shortname,category,sortorder,idnumber,summary,format,showgrades,newsitems,teacher,teachers,student,students,startdate,numsections,maxbytes,visible,groupmode,timecreated,timemodified,password,enrolperiod,groupmodeforce,metacourse,lang,theme,cost,showreports,guest,enrollable,enrolstartdate,enrolenddate,notifystudents,expirynotify,expirythreshold,teacher1_role,teacher1_account
-    csv_courses = [['fullname', 'shortname', 'category', 'sortorder', 'idnumber', 'summary']]
-    i = 0
+    #csv_courses = [['fullname', 'shortname', 'category', 'sortorder', 'idnumber', 'summary']]
+    csv_courses = [['fullname', 'shortname', 'category', 'idnumber', 'summary']]
+    #i = 0
     for (group, members) in groups.iteritems():
-        i += 1
-        csv_courses.append([group, group, group, '', i, group, group])
+        #i += 1
+        csv_courses.append([group, group, '', group, group])
     
     logging.info("courses records: " + str(len(csv_courses) - 1))
 
