@@ -107,7 +107,7 @@ class MaharaProxy:
     def authorise(self):
         if not self.is_authorised():
             #oauth_callback=oob
-            request_token_url = self.options.mahara_url + "/artefact/webservice/oauthv1.php/request_token"
+            request_token_url = self.options.mahara_url + "/webservice/oauthv1.php/request_token"
             client = oauth.Client(self.consumer)
     
             response, content = client.request(request_token_url, 'POST', urllib.urlencode({'oauth_callback':'oob'}))
@@ -116,14 +116,14 @@ class MaharaProxy:
             request_token = oauth.Token(parsed_content['oauth_token'], parsed_content['oauth_token_secret'])
 
             # ask the user to authorize this application
-            print('Authorize this application at: %s?oauth_token=%s' % (self.options.mahara_url + '/artefact/webservice/oauthv1.php/authorize', parsed_content['oauth_token']))
+            print('Authorize this application at: %s?oauth_token=%s' % (self.options.mahara_url + '/webservice/oauthv1.php/authorize', parsed_content['oauth_token']))
             oauth_verifier = raw_input('Enter the PIN / OAuth verifier: ').strip()
             # associate the verifier with the request token
             request_token.set_verifier(oauth_verifier)
             
             # upgrade the request token to an access token
             client = oauth.Client(self.consumer, request_token)
-            response, content = client.request(self.options.mahara_url + '/artefact/webservice/oauthv1.php/access_token', 'POST')
+            response, content = client.request(self.options.mahara_url + '/webservice/oauthv1.php/access_token', 'POST')
             parsed_content = dict(cgi.parse_qsl(content))
             print(parsed_content)
             write_token_file(TOKEN_FILE, parsed_content['oauth_token'], parsed_content['oauth_token_secret'])
@@ -135,7 +135,7 @@ class MaharaProxy:
         print(access_token)
 
         client = oauth.Client(self.consumer, access_token)
-        response = client.request(self.options.mahara_url + '/artefact/webservice/rest/server.php?alt=json', method='POST', body=json.dumps(content), headers={'Content-Type': 'application/jsonrequest'})
+        response = client.request(self.options.mahara_url + '/webservice/rest/server.php?alt=json', method='POST', body=json.dumps(content), headers={'Content-Type': 'application/jsonrequest'})
         response = json.loads(response[1])
         if response and 'exception' in response and response['exception'] == 'OAuthException2':
             print("There was an OAuth authentication problem - try removing " + TOKEN_DIR + " dir", response)
